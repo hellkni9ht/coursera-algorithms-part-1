@@ -67,7 +67,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (size == 0)
             throw new NoSuchElementException();
 
-        int randomItemIndex = StdRandom.uniform(first, last + 1);
+        int randomItemIndex = first + StdRandom.uniform(0, size);
         Item item = queue[randomItemIndex];
         queue[randomItemIndex] = queue[first];
         queue[first] = null;
@@ -80,7 +80,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         size--;
 
         // shrink size of array if necessary
-        if (size == queue.length / 4)
+        if (size > 0 && size == queue.length / 4)
             resize(queue.length / 2);
 
         return item;
@@ -137,7 +137,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public static void main(String[] args) {
         RandomizedQueue<Integer> queue = new RandomizedQueue<>();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 3; i++)
             queue.enqueue(i);
 
         for (int item : queue)
@@ -163,5 +163,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         for (int item : queue)
             StdOut.print(item + " ");
         StdOut.println();
+
+        queue.dequeue();
+
+        for (int i = 0; i < 1024; i++) {
+            queue.enqueue(i);
+            if (i != queue.dequeue())
+                StdOut.println("Failed!");
+        }
+
+        StdOut.println("Probably everything is good:)");
     }
 }
