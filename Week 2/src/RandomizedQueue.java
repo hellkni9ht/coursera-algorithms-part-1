@@ -11,8 +11,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private Item[] queue;        // queue elements
     private int size = 0;        // number of elements on queue
-    private int first = 0;       // index of first element of queue
-    private int last  = 0;       // index of next available slot
     static private int seed = 0; // extra seed
 
     // construct an empty randomized queue
@@ -34,11 +32,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         assert max >= size;
         Item[] temp = (Item[]) new Object[max];
         for (int i = 0; i < size; i++) {
-            temp[i] = queue[(first + i) % queue.length];
+            temp[i] = queue[i];
         }
         queue = temp;
-        first = 0;
-        last  = size;
     }
 
     // add the item
@@ -52,13 +48,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             resize(2 * queue.length);
 
         // add item
-        queue[last++] = item;
-
-        // wrap-around
-        if (last == queue.length)
-            last = 0;
-
-        size++;
+        queue[size++] = item;
     }
 
     // remove and return a random item
@@ -67,15 +57,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (size == 0)
             throw new NoSuchElementException();
 
-        int randomItemIndex = first + StdRandom.uniform(0, size);
+        int randomItemIndex = StdRandom.uniform(0, size);
         Item item = queue[randomItemIndex];
-        queue[randomItemIndex] = queue[first];
-        queue[first] = null;
-        first++;
-
-        // wrap-around
-        if (first == queue.length)
-            first = 0;
+        queue[randomItemIndex] = queue[size - 1];
+        queue[size - 1] = null;
 
         size--;
 
@@ -92,7 +77,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (size == 0)
             throw new NoSuchElementException();
 
-        int randomItemIndex = first + StdRandom.uniform(size);
+        int randomItemIndex = StdRandom.uniform(size);
         Item item = queue[randomItemIndex];
         return item;
     }
@@ -113,7 +98,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         public RandomArrayIterator() {
             order = new int[size];
             for (int i = 0; i < order.length; i++) {
-                order[i] = first + i;
+                order[i] = i;
             }
 
             // each iterator maintains its own random order
@@ -129,6 +114,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         public Item next() {
+            if (!hasNext())
+                throw new NoSuchElementException();
             return (Item)queue[order[current++]];
         }
     }
