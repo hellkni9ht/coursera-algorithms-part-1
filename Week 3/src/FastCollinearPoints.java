@@ -4,7 +4,7 @@ import java.util.*;
  * Created by user on 09.10.2015.
  */
 public class FastCollinearPoints {
-    private LineSegment[] segments;
+    private ArrayList<LineSegment> segments;
 
     // finds all line segments containing 4 points
     public FastCollinearPoints(Point[] points) {
@@ -62,8 +62,7 @@ public class FastCollinearPoints {
         }
 
         // save results
-        this.segments = new LineSegment[lineSegments.size()];
-        lineSegments.toArray(this.segments);
+        this.segments = lineSegments;
     }
 
     private void addUniqueSegment(HashMap<Double, List<ArrayList<Point>>> foundSegments, ArrayList<Point> points, double slope) {
@@ -131,12 +130,12 @@ public class FastCollinearPoints {
 
     // the number of line segments
     public int numberOfSegments() {
-        return segments.length;
+        return segments.size();
     }
 
     // the line segments
     public LineSegment[] segments() {
-        return segments;
+        return segments.toArray(new LineSegment[segments.size()]);
     }
 
 }

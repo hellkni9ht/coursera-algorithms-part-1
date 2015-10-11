@@ -5,10 +5,15 @@ import java.util.Arrays;
  * Created by user on 09.10.2015.
  */
 public class BruteCollinearPoints {
-    private LineSegment[] segments;
+    private ArrayList<LineSegment> segments;
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
+        // check input
+        if (points == null || checkDuplicate(points)) {
+            throw new IllegalArgumentException();
+        }
+
         ArrayList<LineSegment> foundSegments = new ArrayList<>();
 
         for (int p = 0;  p < points.length - 3; p++) {
@@ -29,16 +34,26 @@ public class BruteCollinearPoints {
             }
         }
 
-        this.segments = foundSegments.toArray(new LineSegment[foundSegments.size()]);
+        this.segments = foundSegments;
     }
 
     // the number of line segments
     public int numberOfSegments() {
-        return segments.length;
+        return segments.size();
     }
 
     // the line segments
     public LineSegment[] segments() {
-        return segments;
+        return segments.toArray(new LineSegment[segments.size()]);
+    }
+
+    private boolean checkDuplicate(Point[] points) {
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++)
+                if (points[i] == points[j]) {
+                    return true;
+                }
+        }
+        return false;
     }
 }
