@@ -59,11 +59,25 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
-        return  (that.x == x && that.y == y) ? Double.NEGATIVE_INFINITY : (
+    /*    double result =  (that.x == x && that.y == y) ? Double.NEGATIVE_INFINITY : (
                 (that.y == y) ? Double.POSITIVE_INFINITY : (
                         (that.x == x) ? +0.0 : (that.y - y) / (double)(that.x - x)
                 )
-        );
+        );*/
+
+        double result;
+
+        if (Double.compare(x, that.x) == 0 && Double.compare(y, that.y) == 0) {
+            result = Double.NEGATIVE_INFINITY;
+        } else if (Double.compare(y, that.y) == 0) {
+            result = Double.POSITIVE_INFINITY;
+        } else if (Double.compare(x, that.x) == 0) {
+            result = +0.0;
+        } else {
+            result = (double)(that.y - y) / (that.x - x);
+        }
+
+        return result;
     }
 
     /**
@@ -79,7 +93,26 @@ public class Point implements Comparable<Point> {
      *         argument point
      */
     public int compareTo(Point that) {
-        return y < that.y ? -1 : (y > that.y ? 1 : ((x < that.x) ? -1 : (x > that.x ? 1 : 0)));
+
+        // according to coding rules we shouldn't use ternary operator
+        // int result = y < that.y ? -1 : (y > that.y ? 1 : ((x < that.x) ? -1 : (x > that.x ? 1 : 0)));
+
+        int result;
+        if (y < that.y) {
+            result = -1;
+        } else if (y > that.y) {
+            result = 1;
+        } else {
+            if (x < that.x) {
+                result = -1;
+            } else if (x > that.x) {
+                result = 1;
+            }
+            else {
+                result = 0;
+            }
+        }
+        return result;
     }
 
     /**
@@ -88,7 +121,7 @@ public class Point implements Comparable<Point> {
      * The slope is defined as in the slopeTo() method.
      */
     private class SlopeOrderComparator implements Comparator<Point> {
-        Point p0;
+        private Point p0;
 
         SlopeOrderComparator(Point p0) {
             this.p0 = p0;

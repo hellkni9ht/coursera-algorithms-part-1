@@ -1,4 +1,10 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.LinkedList;
 
 /**
  * Created by user on 09.10.2015.
@@ -8,6 +14,12 @@ public class FastCollinearPoints {
 
     // finds all line segments containing 4 points
     public FastCollinearPoints(Point[] points) {
+
+        // check input
+        if (points == null || checkDuplicate(points)) {
+            throw new IllegalArgumentException();
+        }
+
         HashMap<Double, List<Point[]>> foundSegments = new HashMap<>();
         Point[] copyOfPoints = Arrays.copyOfRange(points, 0, points.length - 1);
 
@@ -105,6 +117,16 @@ public class FastCollinearPoints {
             newListOfSegments.add(newSegment);
             foundSegments.put(slope, newListOfSegments);
         }
+    }
+
+    private boolean checkDuplicate(Point[] points) {
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++)
+            if (points[i] == points[j]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // the number of line segments

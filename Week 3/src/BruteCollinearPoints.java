@@ -9,7 +9,7 @@ public class BruteCollinearPoints {
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
-        ArrayList<LineSegment> segments = new ArrayList<>();
+        ArrayList<LineSegment> foundSegments = new ArrayList<>();
 
         for (int p = 0;  p < points.length - 3; p++) {
             for (int q = p + 1; q < points.length - 2; q++) {
@@ -19,17 +19,17 @@ public class BruteCollinearPoints {
                           points[p], points[q], points[r], points[s]
                         };
 
-                        Arrays.sort(segment);
-                        if (segment[0].slopeOrder().compare(segment[1], segment[2]) == 0 &&
-                            segment[0].slopeOrder().compare(segment[2], segment[3]) == 0) {
-                            segments.add(new LineSegment(segment[0], segment[3]));
+                        if (segment[0].slopeTo(segment[1]) == segment[0].slopeTo(segment[2]) &&
+                            segment[0].slopeTo(segment[1]) == segment[0].slopeTo(segment[3])) {
+                            Arrays.sort(segment);
+                            foundSegments.add(new LineSegment(segment[0], segment[3]));
                         }
                     }
                 }
             }
         }
 
-        this.segments = segments.toArray(new LineSegment[segments.size()]);
+        this.segments = foundSegments.toArray(new LineSegment[foundSegments.size()]);
     }
 
     // the number of line segments
