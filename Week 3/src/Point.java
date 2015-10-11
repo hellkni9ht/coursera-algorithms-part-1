@@ -70,9 +70,9 @@ public class Point implements Comparable<Point> {
         if (Double.compare(x, that.x) == 0 && Double.compare(y, that.y) == 0) {
             result = Double.NEGATIVE_INFINITY;
         } else if (Double.compare(y, that.y) == 0) {
-            result = Double.POSITIVE_INFINITY;
-        } else if (Double.compare(x, that.x) == 0) {
             result = +0.0;
+        } else if (Double.compare(x, that.x) == 0) {
+            result = Double.POSITIVE_INFINITY;
         } else {
             result = (double)(that.y - y) / (that.x - x);
         }

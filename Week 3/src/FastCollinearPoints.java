@@ -1,10 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Created by user on 09.10.2015.
@@ -20,42 +14,40 @@ public class FastCollinearPoints {
             throw new IllegalArgumentException();
         }
 
-        HashMap<Double, List<Point[]>> foundSegments = new HashMap<>();
-        Point[] copyOfPoints = Arrays.copyOfRange(points, 0, points.length - 1);
+        HashMap<Double, List<ArrayList<Point>>> foundSegments = new HashMap<>();
+        Point[] sortedPoints = Arrays.copyOf(points, points.length);
 
-        for (int p = 0;  p < points.length; p++) {
-
+        for (Point origin : points) {
             // For each other point q, determine the slope it makes with p.
-            Arrays.sort(copyOfPoints, points[p].slopeOrder());
+            Arrays.sort(sortedPoints, origin.slopeOrder());
 
             // Check if any 3 (or more) adjacent points in the sorted order have equal slopes with respect to p.
             // If so, these points, together with p, are collinear.
-            int startingPointOfSegment = 0, numberOfPoints = 1;
             double segmentSlope = Double.NEGATIVE_INFINITY;
-            for (int q = 0; q < copyOfPoints.length; q++) {
-                double currentSlope = points[p].slopeTo(copyOfPoints[q]);
-                if (Double.compare(currentSlope, segmentSlope) == 0) {
-                    numberOfPoints++;
+            ArrayList<Point> segmentPoints = new ArrayList<>();
+            for (int q = 0; q < sortedPoints.length; q++) {
+                double currentSlope = origin.slopeTo(sortedPoints[q]);
+
+                if (segmentPoints.isEmpty() || Double.compare(currentSlope, segmentSlope) == 0) {
+                    segmentPoints.add(sortedPoints[q]);
                 } else {
                     // add new segment
-                    if (numberOfPoints >= 3) {
-                        Point[] newSegment = new Point[q - startingPointOfSegment + 1];
-                        newSegment[0] = points[p];
-                        for (int newSegmentPoint = 0; newSegmentPoint < q - startingPointOfSegment; newSegmentPoint++)
-                            newSegment[newSegmentPoint + 1] = copyOfPoints[newSegmentPoint + startingPointOfSegment];
-                        addUniqueSegment(foundSegments, newSegment, segmentSlope);
+                    if (segmentPoints.size() >= 3) {
+                        segmentPoints.add(origin);
+                        addUniqueSegment(foundSegments, segmentPoints, segmentSlope);
                     }
 
                     // reset params for the new segment
-                    numberOfPoints = 1;
-                    startingPointOfSegment = q;
-                    segmentSlope = currentSlope;
+                    segmentPoints.clear();
+                    segmentPoints.add(sortedPoints[q]);
                 }
+                segmentSlope = currentSlope;
             }
 
             // handle the last segment
-            if (numberOfPoints >= 3) {
-                addUniqueSegment(foundSegments, Arrays.copyOfRange(copyOfPoints, startingPointOfSegment, copyOfPoints.length - 1), segmentSlope);
+            if (segmentPoints.size() >= 3) {
+                segmentPoints.add(origin);
+                addUniqueSegment(foundSegments, segmentPoints, segmentSlope);
             }
         }
 
@@ -64,9 +56,9 @@ public class FastCollinearPoints {
         Iterator it = foundSegments.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
-            List<Point[]> listOfSegments = (List<Point[]>)pair.getValue();
-            for (Point[] segmentPoints : listOfSegments)
-                lineSegments.add(new LineSegment(segmentPoints[0], segmentPoints[segmentPoints.length - 1]));
+            List<ArrayList<Point>> listOfSegments = (List<ArrayList<Point>>)pair.getValue();
+            for (ArrayList<Point> segmentPoints : listOfSegments)
+                lineSegments.add(new LineSegment(segmentPoints.get(0), segmentPoints.get(segmentPoints.size() - 1)));
         }
 
         // save results
@@ -74,11 +66,12 @@ public class FastCollinearPoints {
         lineSegments.toArray(this.segments);
     }
 
-    private void addUniqueSegment(HashMap<Double, List<Point[]>> foundSegments, Point[] newSegment, double slope) {
-        List<Point[]> listOfSegments = foundSegments.get(slope);
+    private void addUniqueSegment(HashMap<Double, List<ArrayList<Point>>> foundSegments, ArrayList<Point> points, double slope) {
+        List<ArrayList<Point>> listOfSegments = foundSegments.get(slope);
+        ArrayList<Point> newSegment = (ArrayList<Point>)points.clone();
 
         // sort points of the new segment
-        Arrays.sort(newSegment);
+        Collections.sort(newSegment);
 
         if (listOfSegments != null) {
 
@@ -89,19 +82,26 @@ public class FastCollinearPoints {
             // Find duplicates
             while (itSegmentPoints.hasNext()) {
                 int equalPoints = 0;
-                Point[] segmentPoints = (Point[])itSegmentPoints.next();
+                ArrayList<Point> segmentPoints = (ArrayList<Point>)itSegmentPoints.next();
 
                 // compare points
-                for (int i = 0; i < newSegment.length; i++) {
-                    if (0 <= Arrays.binarySearch(segmentPoints, newSegment[i]))
+                for (Point point : newSegment) {
+                    if (0 <= Collections.binarySearch(segmentPoints, point))
                         equalPoints++;
                 }
 
                 // if number of equal points is greater than one, it's definitely a duplicate.
                 if (equalPoints > 1) {
                     // choose the segment with greater number of points
-                    if (newSegment.length > segmentPoints.length)
-                        segmentPoints = Arrays.copyOf(newSegment, newSegment.length);
+/*                    if (newSegment.get(0).compareTo(segmentPoints.get(0)) != 0) {
+                        segmentPoints.add(0, newSegment.get(0));
+                    }
+
+                    if (newSegment.get(newSegment.size() - 1).compareTo(segmentPoints.get(segmentPoints.size() - 1)) != 0) {
+                        segmentPoints.add(segmentPoints.size() - 1, newSegment.get(newSegment.size() - 1));
+                    }*/
+                    if (newSegment.size() > segmentPoints.size())
+                        segmentPoints = newSegment;
                     foundSegment = true;
                     break;
                 }
@@ -113,7 +113,7 @@ public class FastCollinearPoints {
         }
         else {
             // it's completely new slope, so add it to the map directly
-            List<Point[]> newListOfSegments = new LinkedList<>();
+            List<ArrayList<Point>> newListOfSegments = new LinkedList<>();
             newListOfSegments.add(newSegment);
             foundSegments.put(slope, newListOfSegments);
         }
