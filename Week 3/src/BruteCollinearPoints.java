@@ -18,14 +18,18 @@ public class BruteCollinearPoints {
 
         for (int p = 0;  p < points.length - 3; p++) {
             for (int q = p + 1; q < points.length - 2; q++) {
+                double slopeToQ = points[p].slopeTo(points[q]);
                 for (int r = q + 1; r < points.length - 1; r++) {
+                    double slopeToR = points[p].slopeTo(points[r]);
+                    if (Double.compare(slopeToQ, slopeToR) != 0)
+                        continue;
                     for (int s = r + 1; s < points.length; s++) {
-                        Point[] segment = {
-                          points[p], points[q], points[r], points[s]
-                        };
+                        double slopeToS = points[p].slopeTo(points[s]);
 
-                        if (segment[0].slopeTo(segment[1]) == segment[0].slopeTo(segment[2]) &&
-                            segment[0].slopeTo(segment[1]) == segment[0].slopeTo(segment[3])) {
+                        if (Double.compare(slopeToQ, slopeToS) == 0) {
+                            Point[] segment = {
+                                    points[p], points[q], points[r], points[s]
+                            };
                             Arrays.sort(segment);
                             foundSegments.add(new LineSegment(segment[0], segment[3]));
                         }
