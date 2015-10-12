@@ -10,7 +10,7 @@ public class FastCollinearPoints {
     public FastCollinearPoints(Point[] points) {
 
         // check input
-        if (points == null || checkDuplicate(points)) {
+        if (ensureInput(points)) {
             throw new IllegalArgumentException();
         }
 
@@ -118,16 +118,6 @@ public class FastCollinearPoints {
         }
     }
 
-    private boolean checkDuplicate(Point[] points) {
-        for (int i = 0; i < points.length; i++) {
-            for (int j = i + 1; j < points.length; j++)
-            if (points[i] == points[j]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // the number of line segments
     public int numberOfSegments() {
         return segments.size();
@@ -136,6 +126,23 @@ public class FastCollinearPoints {
     // the line segments
     public LineSegment[] segments() {
         return segments.toArray(new LineSegment[segments.size()]);
+    }
+
+    private boolean ensureInput(Point[] points) {
+        if (points == null || points[0] == null)
+            return false;
+
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++) {
+                if (i == 0 && (points[j] == null))
+                    return true;
+
+                if (points[i].compareTo(points[j]) == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
