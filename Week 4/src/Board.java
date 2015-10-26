@@ -1,21 +1,18 @@
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Created by Bazna on 10/20/2015.
  */
 public class Board {
-    private final int EMPTY_TILE_VALUE = 0;
+    private static final int EMPTY_TILE_VALUE = 0;
     private int[][] tiles;
-    private LinkedList<Board> neighbors;
+    private Board[] neighbors;
     private int emptyTileRow;
     private int emptyTileColumn;
 
     // construct a board from an N-by-N array of tiles
     // (where tiles[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
-        neighbors = new LinkedList<>();
-
         this.tiles = new int[blocks.length][blocks.length];
         for (int iRow = 0; iRow < blocks.length; iRow++) {
             for (int iCol = 0; iCol < blocks.length; iCol++) {
@@ -122,42 +119,69 @@ public class Board {
 
     // update all neighbors
     private void updateNeighbors() {
-        // drop previous neighbors
-        neighbors.clear();
+        ArrayList<Board> neighbors = new ArrayList<>();
 
         // consider the move-from-left neighbor
         if (emptyTileColumn != 0) {
             Board board = new Board(tiles);
             board.swapWithEmptyTile(emptyTileRow, emptyTileColumn - 1);
-            neighbors.push(board);
+            neighbors.add(board);
         }
 
         // consider the move-from-right neighbor
         if (emptyTileColumn != dimension() - 1) {
             Board board = new Board(tiles);
             board.swapWithEmptyTile(emptyTileRow, emptyTileColumn + 1);
-            neighbors.push(board);
+            neighbors.add(board);
         }
 
         // consider the move-from-top neighbor
         if (emptyTileRow != 0) {
             Board board = new Board(tiles);
             board.swapWithEmptyTile(emptyTileRow - 1, emptyTileColumn);
-            neighbors.push(board);
+            neighbors.add(board);
         }
 
         // consider the move-from-bottom neighbor
         if (emptyTileRow != dimension() - 1) {
             Board board = new Board(tiles);
             board.swapWithEmptyTile(emptyTileRow + 1, emptyTileColumn);
-            neighbors.push(board);
+            neighbors.add(board);
         }
+
+        this.neighbors = neighbors.toArray(new Board[neighbors.size()]);
     }
 
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        updateNeighbors();
-        return neighbors;
+        return  new Iterable<Board>() {
+            @Override
+            public Iterator<Board> iterator() {
+                if (neighbors == null) {
+                    updateNeighbors();
+                }
+                return new NeighborIterator();
+            }
+        };
+    }
+
+    private class NeighborIterator implements Iterator<Board> {
+
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+            return index < neighbors.length;
+        }
+
+        @Override
+        public Board next() {
+            if (hasNext()) {
+                return neighbors[index++];
+            } else {
+                throw new NoSuchElementException("There is no next neighbor.");
+            }
+        }
     }
 
     // string representation of this board (in the output format specified below)
