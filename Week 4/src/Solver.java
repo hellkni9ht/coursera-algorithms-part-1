@@ -69,9 +69,9 @@ public class Solver {
             return currentNode;
 
         // add all neighbors to the priority queue
-        for (Board board : currentNode.getBoard().neighbors()) {
-            if (!isBoardInSolution(currentNode, board))
-                priorityQueue.insert(new SearchNode(numberOfMoves + 1, board, currentNode));
+        for (Board neighbor : currentNode.getBoard().neighbors()) {
+            if (!isBoardInSolution(currentNode, neighbor))
+                priorityQueue.insert(new SearchNode(numberOfMoves + 1, neighbor, currentNode));
         }
 
         return null;
