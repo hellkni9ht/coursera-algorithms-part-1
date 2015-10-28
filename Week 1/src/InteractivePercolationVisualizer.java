@@ -11,9 +11,6 @@
  *
  ******************************************************************************/
 
-package com.hellkni9ht.percolation;
-
-import com.hellkni9ht.percolation.Percolation;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 

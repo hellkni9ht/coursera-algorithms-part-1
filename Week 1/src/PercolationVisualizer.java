@@ -16,11 +16,8 @@
  *
  ******************************************************************************/
 
-package com.hellkni9ht.percolation;
-
 import java.awt.Font;
 
-import com.hellkni9ht.percolation.Percolation;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 

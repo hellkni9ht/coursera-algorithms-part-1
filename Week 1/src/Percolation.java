@@ -1,5 +1,3 @@
-package com.hellkni9ht.percolation;
-
 import java.lang.IllegalArgumentException;
 import java.lang.IndexOutOfBoundsException;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
