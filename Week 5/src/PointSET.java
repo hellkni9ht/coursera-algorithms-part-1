@@ -1,6 +1,7 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.SET;
+import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.ArrayList;
 
@@ -24,10 +25,12 @@ public class PointSET {
     public boolean isEmpty() {
         return points.isEmpty();
     }
+
     // number of points in the set
     public int size() {
         return points.size();
     }
+
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D p) {
         ensureInput(p);
@@ -42,6 +45,10 @@ public class PointSET {
 
     // draw all points to standard draw
     public void draw() {
+        StdDraw.setPenRadius(.01);
+        for (Point2D point : points) {
+            StdDraw.point(point.x(), point.y());
+        }
     }
 
     // all points that are inside the rectangle
