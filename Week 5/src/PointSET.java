@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public class PointSET {
 
-    SET<Point2D> points = new SET<>();
+    private SET<Point2D> points = new SET<>();
 
     private void ensureInput(Object object) {
         if (object == null)

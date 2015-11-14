@@ -3,59 +3,12 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by Bazna on 11/7/2015.
  */
 public class KdTree {
-    private static class Node {
-        private Point2D point;  // the point
-        private RectHV rect;    // the axis-aligned rectangle corresponding to this node
-        private Node lb;        // the left/bottom subtree
-        private Node rt;        // the right/top subtree
-
-        private int level;      // the level of tree
-        private int size;       // the number of nodes in the subtree
-
-        public Node(final int level, final Point2D point, final RectHV rect) {
-            this.level = level;
-            this.point = point;
-            this.rect = rect;
-            this.size = 1;
-        }
-
-        public int compare(final Point2D pointToCompare) {
-            if (isXLevel()) {
-                return Double.compare(pointToCompare.x(), point.x());
-            } else {
-                return Double.compare(pointToCompare.y(), point.y());
-            }
-        }
-
-        public boolean isXLevel() {
-            return level % 2 == 0;
-        }
-
-        public boolean intersectsWithSplitingLine(RectHV rect) {
-            if (isXLevel()) {
-                return point.x() >= rect.xmin() && point.x() <= rect.xmax();
-            }
-            else {
-                return point.y() >= rect.ymin() && point.y() <= rect.ymax();
-            }
-        }
-
-        public boolean isRightTop(RectHV rect) {
-            if (isXLevel()) {
-                return rect.xmin() < point.x() && point.x() < rect.xmax();
-            } else {
-                return rect.ymin() < point.y() && point.y() < rect.ymax();
-            }
-        }
-    }
-
     private Node rootNode;
 
     // construct an empty set of points
@@ -72,7 +25,7 @@ public class KdTree {
         return size(rootNode);
     }
 
-    public int size(Node node) {
+    private int size(Node node) {
         return node == null ? 0 : node.size;
     }
 
@@ -90,24 +43,26 @@ public class KdTree {
 
         RectHV lbRect = null;
         RectHV rtRect = null;
-        if (node.lb == null && compareResult <= 0) {
+        if (node.lb == null && compareResult < 0) {
             if (node.isXLevel()) {
-                lbRect = new RectHV(node.rect.xmin(), node.point.x(), node.rect.ymin(), node.rect.ymax());
+                lbRect = new RectHV(node.rect.xmin(), node.rect.ymin(), node.point.x(), node.rect.ymax());
             } else {
-                lbRect = new RectHV(node.rect.xmin(), node.rect.xmax(), node.rect.ymin(), node.point.y());
+                lbRect = new RectHV(node.rect.xmin(), node.rect.ymin(), node.rect.xmax(), node.point.y());
             }
         }
-        else if (compareResult >= 0) {
+        else if (node.rt == null && compareResult >= 0) {
             if (node.isXLevel()) {
-                lbRect = new RectHV(node.point.x(), node.rect.xmax(), node.rect.ymin(), node.rect.ymax());
+                rtRect = new RectHV(node.point.x(), node.rect.ymin(), node.rect.xmax(), node.rect.ymax());
             } else {
-                lbRect = new RectHV(node.rect.xmin(), node.rect.xmax(), node.point.y(), node.rect.ymax());
+                rtRect = new RectHV(node.rect.xmin(), node.point.y(), node.rect.xmax(), node.rect.ymax());
             }
         }
 
         if (compareResult < 0) {
             node.lb = put(node.lb, pointToInsert, level + 1, lbRect);
         } else if (compareResult > 0) {
+            node.rt = put(node.rt, pointToInsert, level + 1, rtRect);
+        } else if (!pointToInsert.equals(node.point)) {
             node.rt = put(node.rt, pointToInsert, level + 1, rtRect);
         }
 
@@ -165,7 +120,7 @@ public class KdTree {
     public Iterable<Point2D> range(RectHV rect) {
         ensureInput(rect);
 
-        List<Point2D> foundPoints = Collections.emptyList();
+        List<Point2D> foundPoints = new ArrayList<>();
         range(rect, rootNode, foundPoints);
         return foundPoints;
     }
@@ -212,10 +167,10 @@ public class KdTree {
         Point2D candidate = null;
         int compare = node.compare(queryPoint);
         if (compare < 0) {
-            candidate = nearest(queryPoint, node, closestPoint);
+            candidate = nearest(queryPoint, node.lb, closestPoint);
         }
         else {
-            candidate = nearest(queryPoint, node, closestPoint);
+            candidate = nearest(queryPoint, node.rt, closestPoint);
         }
 
         if (candidate != null && candidate.distanceSquaredTo(queryPoint) < closestPoint.distanceSquaredTo(queryPoint))
@@ -227,14 +182,14 @@ public class KdTree {
         // there is no need to explore that node (or its subtrees).
         if (compare < 0) {
             if (node.rt != null) {
-                if (node.rt.rect.distanceSquaredTo(queryPoint) < candidate.distanceSquaredTo(queryPoint)) {
+                if (node.rt.rect.distanceSquaredTo(queryPoint) < closestPoint.distanceSquaredTo(queryPoint)) {
                     candidate = nearest(queryPoint, node.rt, closestPoint);
                 }
             }
         }
         else {
             if (node.lb != null) {
-                if (node.lb.rect.distanceSquaredTo(queryPoint) < candidate.distanceSquaredTo(queryPoint)) {
+                if (node.lb.rect.distanceSquaredTo(queryPoint) < closestPoint.distanceSquaredTo(queryPoint)) {
                     candidate = nearest(queryPoint, node.lb, closestPoint);
                 }
             }
@@ -249,5 +204,51 @@ public class KdTree {
     // unit testing of the methods (optional)
     public static void main(String[] args) {
 
+    }
+
+    private static class Node {
+        private Point2D point;  // the point
+        private RectHV rect;    // the axis-aligned rectangle corresponding to this node
+        private Node lb;        // the left/bottom subtree
+        private Node rt;        // the right/top subtree
+
+        private int level;      // the level of tree
+        private int size;       // the number of nodes in the subtree
+
+        public Node(final int level, final Point2D point, final RectHV rect) {
+            this.level = level;
+            this.point = point;
+            this.rect = rect;
+            this.size = 1;
+        }
+
+        public int compare(final Point2D pointToCompare) {
+            if (isXLevel()) {
+                return Double.compare(pointToCompare.x(), point.x());
+            } else {
+                return Double.compare(pointToCompare.y(), point.y());
+            }
+        }
+
+        public boolean isXLevel() {
+            return level % 2 == 0;
+        }
+
+        public boolean intersectsWithSplitingLine(RectHV rectToTest) {
+            if (isXLevel()) {
+                return point.x() >= rectToTest.xmin() && point.x() <= rectToTest.xmax();
+            }
+            else {
+                return point.y() >= rectToTest.ymin() && point.y() <= rectToTest.ymax();
+            }
+        }
+
+        public boolean isRightTop(RectHV rect) {
+            if (isXLevel()) {
+                return rect.xmin() > point.x() && rect.xmax() > point.x();
+            } else {
+                return rect.ymin() > point.y() && rect.ymax() > point.y();
+            }
+        }
     }
 }
