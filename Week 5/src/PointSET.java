@@ -12,13 +12,13 @@ public class PointSET {
 
     private SET<Point2D> points = new SET<>();
 
+    // construct an empty set of points
+    public PointSET() {
+    }
+
     private void ensureInput(Object object) {
         if (object == null)
             throw new java.lang.NullPointerException();
-    }
-
-    // construct an empty set of points
-    public PointSET() {
     }
 
     // is the set empty?

@@ -87,6 +87,8 @@ public class KdTree {
             return get(node.lb, searchedPoint, level + 1);
         else if (compareResult > 0)
             return get(node.rt, searchedPoint, level + 1);
+        else if (!searchedPoint.equals(node.point))
+            return get(node.rt, searchedPoint, level + 1);
         else
             return node.point;
     }
